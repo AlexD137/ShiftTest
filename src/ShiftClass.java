@@ -12,8 +12,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ShiftClass {
+    private static Path filePath;
     public static void main(String[] args) {
-        startProg(new String[]{"-s", "-a", "-p", "sample-", "in1.txt", "in2.txt"});
+        startProg(new String[]{"-o","C:\\Users\\dviri\\IdeaProjects\\main\\ShiftTest\\src", "in1.txt", "in2.txt"});
     }
 
     private static void startProg(String[] args) {
@@ -27,20 +28,24 @@ public class ShiftClass {
                 switch (args[i]) {
                     case "-s" -> System.out.println("параметры запуска S");
                     case "-p" -> System.out.println("параметры запуска P");
-                    case "-o" -> System.out.println("параметры запуска O");
+                    case "-o" -> filePath = setNewPath(args[i + 1]);
                     case "-f" -> System.out.println("параметры запуска F");
                     case "-a" -> System.out.println("параметры запуска A");
                 }
             }
         }
-        strings.stream().forEach(x -> {
+        strings.parallelStream().forEach(x -> {
             try {
                 readStrings(x);
             } catch (IOException e) {
                 System.out.println("Файл не найден");
-                ;
+
             }
         });
+    }
+
+    private static Path setNewPath(String path) {
+        return Paths.get(path);
     }
 
 
@@ -50,68 +55,53 @@ public class ShiftClass {
         Pattern doublePattern = Pattern.compile("^-?\\d+\\.\\d+$|^-?\\d+\\.\\d+E[+-]?\\d+$");
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
             String line;
+
             while ((line = reader.readLine()) != null) {
+                line = line.trim();
                 Matcher integerMatcher = integerPattern.matcher(line);
                 Matcher doubleMatcher = doublePattern.matcher(line);
                 if (integerMatcher.matches()) {
-                    int intValue = Integer.parseInt(line);
-                    toIntegerFile(intValue);
-                    System.out.println("Это тип инт - " + intValue);
+                    toIntegerFile(line);
+                    System.out.println("Это тип инт - " + line);
                 } else if (doubleMatcher.matches()) {
-                    double doubleValue = Double.parseDouble(line);
-                    toDoubleFile(doubleValue);
-                    System.out.println("Это тип дабл - " + doubleValue);
+
+                    toDoubleFile(line);
+                    System.out.println("Это тип дабл - " + line);
                 } else {
-                    String stringValue = reader.readLine();
-                    toStringFile(stringValue);
-                    System.out.println("Это тип стринг - " + stringValue);
+                    String stringValue = line;
+                    toStringFile(line);
+                    System.out.println("Это тип стринг - " + line);
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
 
     }
 
+    private static void writeToFile(String fileName, String content) throws IOException {
+        if (filePath == null) {
+            filePath = Paths.get(fileName);
+        }
+
+
+
+        Files.write(filePath, (content + System.lineSeparator()).getBytes(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND);
+    }
+
     private static void toStringFile(String s) throws IOException {
-        Path path = Paths.get("string.txt");
-
-        if (!Files.exists(path)) {
-            Files.createFile(path);
-            System.out.println("Создан файл: " + path);
-        }
-
-        Files.write(path, (s + System.lineSeparator()).getBytes(), StandardOpenOption.APPEND);
-
-
+        writeToFile("string.txt", s);
     }
 
-    private static void toDoubleFile(Double d) throws IOException {
-        Path path = Paths.get("double.txt");
-
-
-        if (!Files.exists(path)) {
-            Files.createFile(path);
-            System.out.println("Создан файл: " + path);
-        }
-
-        Files.write(path, (Double.toString(d) + System.lineSeparator()).getBytes(), StandardOpenOption.APPEND);
-
+    private static void toDoubleFile(String d) throws IOException {
+        writeToFile("double.txt", d);
     }
 
-    private static void toIntegerFile(Integer i) throws IOException {
-        Path path = Paths.get("integer.txt");
-
-
-        if (!Files.exists(path)) {
-            Files.createFile(path);
-            System.out.println("Создан файл: " + path);
-        }
-
-        Files.write(path, (Integer.toString(i) + System.lineSeparator()).getBytes(), StandardOpenOption.APPEND);
-
+    private static void toIntegerFile(String i) throws IOException {
+        writeToFile("integer.txt", i);
     }
 
 
