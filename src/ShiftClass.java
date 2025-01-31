@@ -54,11 +54,11 @@ public class ShiftClass {
                 Matcher integerMatcher = integerPattern.matcher(line);
                 Matcher doubleMatcher = doublePattern.matcher(line);
                 if (integerMatcher.matches()) {
-                    int intValue = Integer.parseInt(reader.readLine());
+                    int intValue = Integer.parseInt(line);
                     toIntegerFile(intValue);
                     System.out.println("Это тип инт - " + intValue);
                 } else if (doubleMatcher.matches()) {
-                    double doubleValue = Double.parseDouble(reader.readLine());
+                    double doubleValue = Double.parseDouble(line);
                     toDoubleFile(doubleValue);
                     System.out.println("Это тип дабл - " + doubleValue);
                 } else {
